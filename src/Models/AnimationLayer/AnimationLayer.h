@@ -15,6 +15,9 @@ public:
     void blinkText(const char* text, uint32_t color, uint32_t interval);
     void showScore(int score, uint32_t color = 0xFFFF00);
     void clear();
+    void drawMenuTitle(const uint16_t* logo, uint8_t logoWidth, uint8_t logoHeight, uint16_t bandColor, uint16_t backgroundColor, uint8_t bandWidth = 4);
+    void animateMenuTitleBlinkAndGrow(const uint16_t* logo, uint8_t logoWidth, uint8_t logoHeight, uint16_t bandColor, uint16_t backgroundColor, uint8_t startWidth, uint8_t endWidth, uint16_t blinkDelay = 100, uint8_t blinkCount = 6);
+    void showLoadingAnimation();
 
 private:
     WS2812BMatrix& matrix;
@@ -26,6 +29,7 @@ private:
     bool isBlinking;
     bool isTextVisible;
     bool isTextScrolling;
+    bool isLoading;
 
     int currentScore;
     bool isScoreAnimating;
@@ -34,6 +38,7 @@ private:
     void updateScroll();
     void updateBlink();
     void updateScore();
+    void updateLoading();
 };
 
 #endif // ANIMATION_LAYER_H
