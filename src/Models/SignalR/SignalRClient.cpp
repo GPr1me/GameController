@@ -86,15 +86,22 @@ void SignalRClient::onMessageCallback(WebsocketsMessage message) {
 }
 
 void SignalRClient::onEventsCallback(WebsocketsEvent event, String data) {
-    if (event == WebsocketsEvent::ConnectionOpened) {
-        Serial.println("WebSocket connection opened.");
-        sendHandshake();
-    } else if (event == WebsocketsEvent::ConnectionClosed) {
-        Serial.println("WebSocket connection closed.");
-        begin(); // Reconnect
-    } else if (event == WebsocketsEvent::GotPing) {
-        Serial.println("WebSocket ping received.");
-    } else if (event == WebsocketsEvent::GotPong) {
-        Serial.println("WebSocket pong received.");
-    }
+  switch (event) {
+    case WebsocketsEvent::ConnectionOpened:
+      Serial.println("WebSocket connection opened.");
+      _sendHandshake();
+      break;
+    case WebsocketsEvent::ConnectionClosed:
+      Serial.println("WebSocket connection closed.");
+      begin();
+      break;
+    case WebsocketsEvent::GotPing:
+      Serial.println("WebSocket ping received.");
+      break;
+    case WebsocketsEvent::GotPong:
+      Serial.println("WebSocket pong received.");
+      break;
+    default:
+      break;
+  }
 }
