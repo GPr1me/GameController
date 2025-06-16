@@ -8,11 +8,14 @@
 class WS2812BMatrix {
 public:
     WS2812BMatrix(uint16_t width, uint16_t height, uint8_t pin, bool isRotated = false);
+    
     void begin();
-    void setBrightness(uint8_t brightness); 
     void run();
+
     void clear();
     void show();
+
+    void setBrightness(uint8_t brightness); 
     void displayScrollingText(const char* text, uint16_t color, uint32_t speed);
     void displayScrollingTextBlocking(const char* text, uint16_t color, uint32_t speed);
     void print(const char* text, uint16_t color);
@@ -23,11 +26,11 @@ public:
     uint16_t getHeight();
 
 private:
-    uint16_t width;
-    uint16_t height;
-    Adafruit_NeoMatrix matrix;
-    uint16_t getPixelIndex(uint16_t x, uint16_t y);
-    volatile uint64_t lastScreenClearTime;
+    uint16_t _width;
+    uint16_t _height;
+    Adafruit_NeoMatrix _matrix;
+    uint16_t _getPixelIndex(uint16_t x, uint16_t y);
+    volatile uint64_t _lastScreenClearTime;
 
     const char* _scrollText = nullptr;
     uint16_t _scrollColor = 0;

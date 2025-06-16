@@ -4,18 +4,18 @@ SignalRClient::SignalRClient(const String& serverUrl)
     : _serverUrl(serverUrl) {}
 
 void SignalRClient::begin() {
-    negotiate();
-    _websocket.onMessage([this](WebsocketsMessage message) { onMessageCallback(message); });
-    _websocket.onEvent([this](WebsocketsEvent event, String data) { onEventsCallback(event, data); });
+    _negotiate();
+    _websocket.onMessage([this](WebsocketsMessage message) { _onMessageCallback(message); });
+    _websocket.onEvent([this](WebsocketsEvent event, String data) { _onEventsCallback(event, data); });
 }
 
-void SignalRClient::negotiate() {
+void SignalRClient::_negotiate() {
     String negotiateUrl = "http://" + _serverUrl + "/negotiate?negotiateVersion=1";
-    http.begin(negotiateUrl);
-    int httpCode = http.POST("");
+    _http.begin(negotiateUrl);
+    int httpCode = _http.POST("");
 
     if (httpCode > 0) {
-        String payload = http.getString();
+        String payload = _http.getString();
         Serial.println("Negotiate response: " + payload);
 
         DeserializationError error = deserializeJson(_doc, payload);
@@ -29,16 +29,16 @@ void SignalRClient::negotiate() {
             Serial.println("WebSocket URL: " + websocketUrl);
 
             _websocket.connect(websocketUrl);
-            sendHandshake();
+            _sendHandshake();
         }
     } else {
         Serial.println("Negotiate request failed");
     }
 
-    http.end();
+    _http.end();
 }
 
-void SignalRClient::sendHandshake() {
+void SignalRClient::_sendHandshake() {
     String handshakeMessage = "{\"protocol\":\"json\",\"version\":1}\x1E";
     _websocket.send(handshakeMessage);
     Serial.println("SignalR handshake sent.");
@@ -58,7 +58,7 @@ void SignalRClient::On(const String& methodName, std::function<void(const String
     _callbacks[methodName] = callback;
 }
 
-void SignalRClient::onMessageCallback(WebsocketsMessage message) {
+void SignalRClient::_onMessageCallback(WebsocketsMessage message) {
     Serial.println("Received message: " + message.data());
 
     // Parse the incoming message
@@ -76,32 +76,32 @@ void SignalRClient::onMessageCallback(WebsocketsMessage message) {
         JsonArray arguments = _doc["arguments"];
 
         if (_callbacks.find(target) != _callbacks.end()) {
+
             // Invoke the registered callback with the first argument
             if (!arguments.isNull() && arguments.size() > 0) {
-                
                 _callbacks[target](arguments[0].as<String>());
             }
         }
     }
 }
 
-void SignalRClient::onEventsCallback(WebsocketsEvent event, String data) {
-  switch (event) {
-    case WebsocketsEvent::ConnectionOpened:
-      Serial.println("WebSocket connection opened.");
-      _sendHandshake();
-      break;
-    case WebsocketsEvent::ConnectionClosed:
-      Serial.println("WebSocket connection closed.");
-      begin();
-      break;
-    case WebsocketsEvent::GotPing:
-      Serial.println("WebSocket ping received.");
-      break;
-    case WebsocketsEvent::GotPong:
-      Serial.println("WebSocket pong received.");
-      break;
-    default:
-      break;
-  }
+void SignalRClient::_onEventsCallback(WebsocketsEvent event, String data) {
+    switch (event) {
+        case WebsocketsEvent::ConnectionOpened:
+            Serial.println("WebSocket connection opened.");
+            _sendHandshake();
+            break;
+        case WebsocketsEvent::ConnectionClosed:
+            Serial.println("WebSocket connection closed.");
+            begin();
+            break;
+        case WebsocketsEvent::GotPing:
+            Serial.println("WebSocket ping received.");
+            break;
+        case WebsocketsEvent::GotPong:
+            Serial.println("WebSocket pong received.");
+            break;
+        default:
+            break;
+    }
 }

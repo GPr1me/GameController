@@ -6,61 +6,61 @@
 #include <Adafruit_GFX.h> // Include Adafruit GFX library for text rendering
 
 WS2812BMatrix::WS2812BMatrix(uint16_t width, uint16_t height, uint8_t pin, bool isRotated)
-    : width(width), 
-    height(height), 
-    matrix(width, height, pin, 
+    : _width(width), 
+    _height(height), 
+    _matrix(width, height, pin, 
         isRotated 
             ? (NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE) 
             : (NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE)
     ) { }
 
 void WS2812BMatrix::begin() {
-    matrix.begin();
-    matrix.setTextWrap(false);
+    _matrix.begin();
+    _matrix.setTextWrap(false);
 }
 
 void WS2812BMatrix::setBrightness(uint8_t brightness) {
-    matrix.setBrightness(brightness);
+    _matrix.setBrightness(brightness);
 }
 
 void WS2812BMatrix::run() {
     if (_isScrolling && _scrollText) {
         _updateScrollingText();
     }
-    if (lastScreenClearTime != 0) {
-        if (millis() - lastScreenClearTime >= 1000) {
-            matrix.fillScreen(0); // Clear the matrix
-            lastScreenClearTime = millis();
+    if (_lastScreenClearTime != 0) {
+        if (millis() - _lastScreenClearTime >= 1000) {
+            _matrix.fillScreen(0);
+            _lastScreenClearTime = millis();
         }
-        matrix.show();
+        _matrix.show();
     }
 }
 
 void WS2812BMatrix::clear() {
-    matrix.fillScreen(0);
-    matrix.show(); // Clear
-    _scrollText = nullptr; // Reset scrolling text
+    _matrix.fillScreen(0);
+    _matrix.show();
+    _scrollText = nullptr;
 }
 
 void WS2812BMatrix::show() {
-    matrix.show();
+    _matrix.show();
 }
 
-uint16_t WS2812BMatrix::getPixelIndex(uint16_t x, uint16_t y) {
-    return y * width + x;
+uint16_t WS2812BMatrix::_getPixelIndex(uint16_t x, uint16_t y) {
+    return y * _width + x;
 }
 
 void WS2812BMatrix::displayScrollingTextBlocking(const char* text, uint16_t color, uint32_t speed) {
-    matrix.setTextColor(color);
+    _matrix.setTextColor(color);
 
-    int16_t x = width;
-    int16_t textWidth = matrix.width() + strlen(text) * 6; // Approximate width of text
+    int16_t x = _width;
+    int16_t textWidth = _matrix.width() + strlen(text) * 6; // Approximate width of text
 
     while (x > -textWidth) {
-        matrix.fillScreen(0); // Clear the matrix
-        matrix.setCursor(x, 0);
-        matrix.print(text);
-        matrix.show();
+        _matrix.fillScreen(0);
+        _matrix.setCursor(x, 0);
+        _matrix.print(text);
+        _matrix.show();
         delay(speed);
         x--;
     }
@@ -70,8 +70,8 @@ void WS2812BMatrix::displayScrollingText(const char* text, uint16_t color, uint3
     _scrollText = text;
     _scrollColor = color;
     _scrollSpeed = speed;
-    _scrollX = width;
-    _scrollTextWidth = matrix.width() + strlen(text) * 6; // Approximate width of text
+    _scrollX = _width;
+    _scrollTextWidth = _matrix.width() + strlen(text) * 6; // Approximate width of text
     _lastScrollUpdate = millis();
     _isScrolling = true;
 }
@@ -79,15 +79,15 @@ void WS2812BMatrix::displayScrollingText(const char* text, uint16_t color, uint3
 void WS2812BMatrix::_updateScrollingText() {
     uint32_t now = millis();
     if (now - _lastScrollUpdate >= _scrollSpeed) {
-        matrix.fillScreen(0);
-        matrix.setTextColor(_scrollColor);
-        matrix.setCursor(_scrollX, 0);
-        matrix.print(_scrollText);
-        matrix.show();
+        _matrix.fillScreen(0);
+        _matrix.setTextColor(_scrollColor);
+        _matrix.setCursor(_scrollX, 0);
+        _matrix.print(_scrollText);
+        _matrix.show();
 
         _scrollX--;
         if (_scrollX < -_scrollTextWidth) {
-            _isScrolling = false; // Stop scrolling when done
+            _isScrolling = false;
         }
         _lastScrollUpdate = now;
     }
@@ -96,30 +96,30 @@ void WS2812BMatrix::_updateScrollingText() {
 void WS2812BMatrix::print(const char* text, uint16_t color) {
     int16_t x1, y1;
     uint16_t w, h;
-    matrix.setTextWrap(false);
-    matrix.setTextColor(color);
-    matrix.getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+    _matrix.setTextWrap(false);
+    _matrix.setTextColor(color);
+    _matrix.getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
 
     // Center the text
-    int16_t cx = (width - w) / 2;
-    int16_t cy = (height - h) / 2;
+    int16_t cx = (_width - w) / 2;
+    int16_t cy = (_height - h) / 2;
 
     this->print(text, color, cx, cy);
 }
 
 void WS2812BMatrix::print(const char* text, uint16_t color, int16_t x, int16_t y) {
-    matrix.setTextColor(color);
-    matrix.fillScreen(0); // Clear the matrix
-    matrix.setCursor(x, y);
-    matrix.print(text);
-    matrix.show();
-    lastScreenClearTime = millis();
+    _matrix.setTextColor(color);
+    _matrix.fillScreen(0);
+    _matrix.setCursor(x, y);
+    _matrix.print(text);
+    _matrix.show();
+    _lastScreenClearTime = millis();
 }
 
 void WS2812BMatrix::drawPixel(int16_t x, int16_t y, uint16_t color) {
-    matrix.drawPixel(x, y, color);
+    _matrix.drawPixel(x, y, color);
 }
 
 
-uint16_t WS2812BMatrix::getWidth() { return width; }
-uint16_t WS2812BMatrix::getHeight() { return height; }
+uint16_t WS2812BMatrix::getWidth() { return _width; }
+uint16_t WS2812BMatrix::getHeight() { return _height; }

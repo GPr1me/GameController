@@ -24,15 +24,15 @@ private:
     String _serverUrl;
     String _connectionToken;
     WebsocketsClient _websocket;
-    HTTPClient http;
+    HTTPClient _http;
     JsonDocument _doc;
 
     std::map<String, std::function<void(const String&)>> _callbacks;
 
-    void negotiate();
-    void sendHandshake();
-    void onMessageCallback(WebsocketsMessage message);
-    void onEventsCallback(WebsocketsEvent event, String data);
+    void _negotiate();
+    void _sendHandshake();
+    void _onMessageCallback(WebsocketsMessage message);
+    void _onEventsCallback(WebsocketsEvent event, String data);
 };
 
 #endif // SIGNALR_CLIENT_H

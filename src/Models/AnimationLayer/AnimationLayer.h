@@ -11,34 +11,42 @@ public:
     void run();
 
     // Animation methods
-    void scrollText(const char* text, uint32_t color, uint32_t speed);
+    void animateMenuTitleBlinkAndGrow(const uint16_t* logo, uint8_t logoWidth, uint8_t logoHeight, uint16_t bandColor, uint16_t backgroundColor, uint8_t startWidth, uint8_t endWidth, uint16_t blinkDelay = 100, uint8_t blinkCount = 6);
     void blinkText(const char* text, uint32_t color, uint32_t interval);
-    void showScore(int score, uint32_t color = 0xFFFF00);
+    void scrollText(const char* text, uint32_t color, uint32_t speed);
     void clear();
     void drawMenuTitle(const uint16_t* logo, uint8_t logoWidth, uint8_t logoHeight, uint16_t bandColor, uint16_t backgroundColor, uint8_t bandWidth = 4);
-    void animateMenuTitleBlinkAndGrow(const uint16_t* logo, uint8_t logoWidth, uint8_t logoHeight, uint16_t bandColor, uint16_t backgroundColor, uint8_t startWidth, uint8_t endWidth, uint16_t blinkDelay = 100, uint8_t blinkCount = 6);
     void showLoadingAnimation();
+    void showScore(int score, uint32_t color = 0xFFFF00);
 
 private:
-    WS2812BMatrix& matrix;
-    const char* currentText;
-    uint32_t currentColor;
-    uint32_t animationSpeed;
-    uint32_t lastUpdateTime;
-    uint32_t initialTime;
-    bool isBlinking;
-    bool isTextVisible;
-    bool isTextScrolling;
-    bool isLoading;
+    WS2812BMatrix& _matrix;
 
-    int currentScore;
-    bool isScoreAnimating;
-    uint32_t shineStep;
+    const char* _currentText;
 
-    void updateScroll();
-    void updateBlink();
-    void updateScore();
-    void updateLoading();
+    uint32_t _animationSpeed;
+    uint32_t _currentColor;
+    uint32_t _initialTime;
+    uint32_t _lastUpdateTime;
+
+    enum AnimationType {
+        NONE,
+        SCROLLING_TEXT,
+        BLINKING_TEXT,
+        SCORE_ANIMATION,
+        LOADING_ANIMATION
+    };
+    AnimationType _currentAnimationType;
+
+    bool _isTextVisible;
+
+    int _currentScore;
+    uint32_t _shineStep;
+
+    void _updateScroll();
+    void _updateBlink();
+    void _updateScore();
+    void _updateLoading();
 };
 
 #endif // ANIMATION_LAYER_H
